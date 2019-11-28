@@ -4,15 +4,29 @@
       <v-flex xs12 sm8 md4>
         <v-card class="elevation-12">
           <v-toolbar light color="primary">
-            <v-toolbar-title>Login Form</v-toolbar-title>
+            <v-toolbar-title>Signup Form</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-text-field
+                name="name"
+                label="Name"
+                type="text"
+                v-model="signupForm.name"
+                required
+              ></v-text-field>
+              <v-text-field
+                name="surname"
+                label="Surname"
+                type="text"
+                v-model="signupForm.surname"
+                required
+              ></v-text-field>
+              <v-text-field
                 name="email"
                 label="Email"
                 type="email"
-                v-model="loginForm.email"
+                v-model="signupForm.email"
                 :rules="emailRules"
                 required
               ></v-text-field>
@@ -22,14 +36,25 @@
                 id="password"
                 type="password"
                 required
-                v-model="loginForm.password"
+                v-model="signupForm.password"
+                :rules="passwordRules"
+              ></v-text-field>
+              <v-text-field
+                name="password2"
+                label="Confirm Password"
+                id="password2"
+                type="password2"
+                required
+                v-model="signupForm.password2"
                 :rules="passwordRules"
               ></v-text-field>
             </v-form>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="secondary" :disabled="!valid" @click="login">Login</v-btn>
+            <v-btn color="secondary" :disabled="!valid" @click="signup"
+              >Signup</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -39,12 +64,17 @@
 <script>
 const fb = require("../plugins/firebase.ts");
 export default {
-  name: "Signin",
+  name: "Signup",
   data() {
     return {
       valid: false,
-      email: "",
-      password: "",
+      signupForm: {
+        name: "",
+        surname: "",
+        email: "",
+        password: "",
+        password2: ""
+      },
       emailRules: [
         v => !!v || "E-mail is required",
         v => /.+@.+/.test(v) || "E-mail must be valid"
@@ -52,34 +82,10 @@ export default {
       passwordRules: [
         v => !!v || "Password is required",
         v => v.length >= 6 || "Password must be greater than 6 characters"
-      ],
-      loginForm: {
-        email: "",
-        password: ""
-      },
-      signupForm: {
-        name: "",
-        email: "",
-        password: ""
-      }
+      ]
     };
   },
   methods: {
-    login() {
-      fb.auth
-        .signInWithEmailAndPassword(
-          this.loginForm.email,
-          this.loginForm.password
-        )
-        .then(user => {
-          this.$store.commit("setCurrentUser", user.user);
-          this.$store.dispatch("fetchUserProfile");
-          this.$router.push("/dashboard");
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    },
     signup() {
       fb.auth
         .createUserWithEmailAndPassword(
@@ -93,7 +99,9 @@ export default {
           fb.usersCollection
             .doc(theUser.uid)
             .set({
-              name: this.signupForm.email
+              name: this.signupForm.name,
+              surname: this.signupForm.surname,
+              email: this.signupForm.email
             })
             .then(() => {
               this.$store.dispatch("fetchUserProfile");
@@ -108,7 +116,7 @@ export default {
         });
     },
     toggleForm() {
-      this.showLoginForm = !this.showLoginForm;
+      this.showSignupForm = !this.showSignupForm;
     },
     flip(par) {
       this.formEl.item = par;

@@ -1,13 +1,24 @@
-import Vue from 'vue'
-import App from './App.vue'
-import './registerServiceWorker'
-import router from './router'
-import store from './store'
+import Vue from "vue";
+import App from "./App.vue";
+import vuetify from "./plugins/vuetify";
+import "./registerServiceWorker";
+import router from "./router";
+import { store } from "./store";
 
-Vue.config.productionTip = false
+const fb = require("./plugins/firebase");
 
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app')
+Vue.config.productionTip = false;
+
+let app;
+
+fb.auth.onAuthStateChanged(user => {
+  if (!app) {
+    app = new Vue({
+      el: "#app",
+      router,
+      store,
+      vuetify,
+      render: h => h(App)
+    });
+  }
+});
