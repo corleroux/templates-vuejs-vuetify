@@ -7,13 +7,14 @@ import Signup from "@/components/Signup.vue";
 import Dashboard from "@/components/Dashboard.vue";
 import Settings from "@/components/Settings.vue";
 import Access from "@/components/Access.vue";
+import Home from "@/components/Home.vue";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "*",
-    redirect: "/access"
+    redirect: "/dashboard"
   },
   {
     path: "/login",
@@ -48,6 +49,11 @@ const routes = [
     path: "/signup",
     name: "Signup",
     component: Signup
+  },
+  {
+    path: "/home",
+    name: "Home",
+    component: Home
   }
 ];
 

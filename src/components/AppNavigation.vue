@@ -1,46 +1,61 @@
 <template>
-  <div>
-    <v-app-bar color="white" dark elevate-on-scroll>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+  <span>
+    <v-toolbar app light>
+      <v-app-bar-nav-icon
+        class="hidden-md-and-up"
+        @click="drawer = !drawer"
+      ></v-app-bar-nav-icon>
 
-      <v-toolbar-title>
-        <v-img src="../assets/web-logo.png" style="height: inherit;"></v-img>
-      </v-toolbar-title>
-
+      <v-toolbar-title></v-toolbar-title>
+      <v-btn text class="hidden-sm-and-down" to="/">Home</v-btn>
       <v-spacer></v-spacer>
-
+      <v-btn text v-if="!currentUser" to="/login">Login</v-btn>
+      <v-btn text v-if="currentUser" @click="logout">Logout</v-btn>
       <v-btn icon>
-        <v-icon>mdi-heart</v-icon>
+        <v-icon>mdi-export</v-icon>
       </v-btn>
+    </v-toolbar>
 
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-
-      <v-menu left bottom>
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
+    <v-navigation-drawer app v-model="drawer" light disable-resize-watcher>
+      <v-list>
+        <template v-for="(item, index) in items">
+          <v-list-tile :key="index">
+            <v-list-tile-content>
+              {{ item.title }}
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-divider :key="`divider-${index}`"></v-divider>
         </template>
-
-        <v-list>
-          <v-list-item v-for="n in 5" :key="n" @click="() => {}">
-            <v-list-item-title>Option {{ n }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-app-bar>
-  </div>
+      </v-list>
+    </v-navigation-drawer>
+  </span>
 </template>
 <script>
+const fb = require("../plugins/firebase.ts");
+import { mapState } from "vuex";
 export default {
   name: "AppNavigation",
   data: () => ({
-    collapseOnScroll: true
-  })
+    drawer: false,
+    items: [{ title: "Menu" }, { title: "Sign In" }, { title: "Join" }]
+  }),
+  methods: {
+    logout() {
+      fb.auth
+        .signOut()
+        .then(() => {
+          this.$store.dispatch("clearData");
+          this.$router.push("/login");
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
+  },
+  computed: {
+    ...mapState(["currentUser"])
+  }
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
