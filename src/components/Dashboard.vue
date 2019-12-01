@@ -32,6 +32,7 @@ export default {
   computed: {
     ...mapState(["userProfile", "currentUser", "leads", "hiddenLeads"]),
     userLeads() {
+      console.log(this.$store.state.userLeads);
       return this.$store.state.userLeads;
     }
   },
