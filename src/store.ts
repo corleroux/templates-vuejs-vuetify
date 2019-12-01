@@ -65,7 +65,7 @@ export const store = new Vuex.Store({
       state.userProfile = val;
     },
     setUserLeads(state, payload) {
-      state.userLeads = payload;
+      state.userLeads.push(payload);
     }
   }
 });
