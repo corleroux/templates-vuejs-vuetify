@@ -72,7 +72,7 @@
               label="Does the client have a personal bank account?"
             ></v-checkbox>
 
-            <v-btn text color="secondary">Save for later</v-btn>
+            <!-- <v-btn text color="secondary">Save for later</v-btn> -->
             <v-btn color="primary" @click="e1 = 2">Continue</v-btn>
           </v-stepper-content>
 
@@ -98,7 +98,7 @@
               label="StreetNumber"
             ></v-text-field>
             <v-btn text @click="e1 = 1">Back</v-btn>
-            <v-btn text color="secondary">Save for later</v-btn>
+            <!-- <v-btn text color="secondary">Save for later</v-btn> -->
             <v-btn color="primary" @click="e1 = 3">Continue</v-btn>
           </v-stepper-content>
 
@@ -137,9 +137,9 @@
               label="Describe the property in less than 2000 words"
             ></v-textarea>
 
-            <v-btn color="primary" @click.prevent="submitToStore">Submit</v-btn>
-            <v-btn text color="secondary">Save for later</v-btn>
             <v-btn text @click="e1 = 2">Back</v-btn>
+            <v-btn color="primary" @click.prevent="submitToStore">Submit</v-btn>
+            <!-- <v-btn text color="secondary">Save for later</v-btn> -->
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -148,6 +148,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 const fb = require("../plugins/firebase.ts");
 export default {
   data() {
@@ -213,6 +214,9 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState(["userProfile", "currentUser"])
+  },
   methods: {
     onInput(val) {
       this.steps = parseInt(val);
@@ -225,12 +229,15 @@ export default {
       }
     },
     submitToStore() {
-      var userId = this.$store.currentUser.uid;
+      //var userId = this.$store.currentUser.uid;
       fb.leadsCollection
-        .doc(theUser.uid)
-        .set({
+        .add({
+          createdOn: new Date(),
+          userId: this.currentUser.uid,
+          userName: this.userProfile.name,
           lead: this.lead
         })
+        .then(ref => (this.lead = {}))
         .catch(err => {
           console.log(err);
         });
