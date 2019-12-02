@@ -278,10 +278,14 @@ export default {
         .add({
           createdOn: new Date(),
           userId: this.currentUser.uid,
-          userName: this.userProfile.name,
+          userName: this.userProfile.name + " " + this.userProfile.surname,
+          userEmail: this.userProfile.userEmail,
           lead: this.lead
         })
-        .then(ref => (this.lead = {}))
+        .then(ref => {
+          this.lead = {};
+          this.$router.push("/dashboard");
+        })
         .catch(err => {
           console.log(err);
         });
