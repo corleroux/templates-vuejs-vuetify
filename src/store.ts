@@ -45,11 +45,13 @@ export const store = new Vuex.Store({
         .orderBy("createdOn", "desc")
         .get()
         .then(function(querySnapshot) {
+          let leadsArray = [];
           querySnapshot.forEach(function(doc) {
-            store.commit("setUserLeads", doc.data());
-            console.log(doc.id, " => ", doc.data());
-            console.log(store.state.currentUser.uid);
+            let lead = doc.data();
+            lead.id = doc.id;
+            leadsArray.push(lead);
           });
+          store.commit("setUserLeads", leadsArray);
         })
         .catch(function(error) {
           console.log("Error getting documents: ", error);
@@ -64,8 +66,8 @@ export const store = new Vuex.Store({
     setUserProfile(state, val) {
       state.userProfile = val;
     },
-    setUserLeads(state, payload) {
-      state.userLeads.push(payload);
+    setUserLeads(state, val) {
+      state.userLeads = val;
     }
   }
 });

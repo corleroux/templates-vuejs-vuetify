@@ -8,6 +8,7 @@ import Dashboard from "@/components/Dashboard.vue";
 import Settings from "@/components/Settings.vue";
 import Access from "@/components/Access.vue";
 import Home from "@/components/Home.vue";
+import GMaps from "@/components/GMaps.vue";
 
 Vue.use(VueRouter);
 
@@ -54,6 +55,11 @@ const routes = [
     path: "/home",
     name: "Home",
     component: Home
+  },
+  {
+    path: "/gmaps",
+    name: "Gmaps",
+    component: GMaps
   }
 ];
 

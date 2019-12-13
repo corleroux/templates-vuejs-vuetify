@@ -120,7 +120,7 @@ export default {
     },
     flip(par) {
       this.formEl.item = par;
-      console.log(this.formEl.item);
+      //console.log(this.formEl.item);
     }
   }
 };

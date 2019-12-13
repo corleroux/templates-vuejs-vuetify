@@ -5,8 +5,11 @@ import colors from "vuetify/lib/util/colors";
 Vue.use(Vuetify);
 
 export default new Vuetify({
+  icons: {
+    iconfont: "mdi"
+  },
   theme: {
-    dark: false,
+    dark: true,
     themes: {
       dark: {
         primary: "#FFEB3B",

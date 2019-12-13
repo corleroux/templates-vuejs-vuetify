@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-gmaps-searchbox="http://www.w3.org/1999/xhtml">
   <div>
     <v-row justify="center" v-show="!lead.customer.idtype">
       <v-btn color="primary" dark @click.stop="dialog = true"
@@ -53,7 +53,7 @@
         <v-stepper-content step="1">
           <v-form ref="form1" v-model="valid" lazy-validation>
             <v-text-field
-              v-model="lead.customer.name"
+              v-model="lead.customer.forename"
               label="Firstname"
               :rules="nameRules"
               required
@@ -76,6 +76,30 @@
               :rules="nameRules"
               required
             ></v-text-field>
+            <span v-if="lead.customer.idtype == '2'">
+              <v-menu
+                v-model="birthdatemenu"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-text-field
+                    v-model="lead.customer.birthdate"
+                    label="Bithdate"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="lead.customer.birthdate"
+                  @input="birthdatemenu = false"
+                ></v-date-picker>
+              </v-menu>
+            </span>
             <v-checkbox
               v-model="lead.property.hasBankAccount"
               label="Does the client have a personal bank account?"
@@ -88,6 +112,11 @@
 
         <v-stepper-content step="2">
           <v-form ref="form2" v-model="valid" lazy-validation>
+            <input v-model="vm.searchPlace" v-gmaps-searchbox:location="vm" />
+            <v-text-field
+              v-model="vm.location.formatted_address"
+            ></v-text-field>
+            <!--
             <v-text-field
               v-model="lead.address.suburb"
               label="Suburb"
@@ -96,7 +125,7 @@
             <v-text-field
               v-model="lead.address.area"
               :rules="nameRules"
-              label="Area"
+              label="City"
             ></v-text-field>
             <v-text-field
               v-model="lead.address.province"
@@ -111,6 +140,7 @@
               v-model="lead.address.streetnumber"
               label="StreetNumber"
             ></v-text-field>
+            -->
             <v-btn text @click="e1 = 1">Back</v-btn>
             <!-- <v-btn text color="secondary">Save for later</v-btn> -->
             <v-btn color="primary" @click="validate2(3)">Continue</v-btn>
@@ -130,7 +160,7 @@
             ></v-checkbox>
 
             <v-select
-              v-model="lead.property.wallType"
+              v-model="lead.property.walltype"
               item-text="text"
               item-value="value"
               :items="wallTypeOptions"
@@ -140,7 +170,7 @@
               >What type of roof does the propery have?</v-select
             >
             <v-select
-              v-model="lead.property.roofType"
+              v-model="lead.property.rooftype"
               item-text="text"
               item-value="value"
               :items="roofTypeOptions"
@@ -149,12 +179,13 @@
               required
             ></v-select>
 
-            <v-textarea
-              v-model="lead.property.propertyDescription"
-              name="propertyDescription"
-              label="Describe the property in less than 2000 words"
-            ></v-textarea>
-
+            <span v-if="!lead.property.isMainDwelling">
+              <v-textarea
+                v-model="lead.property.propertyDescription"
+                name="propertyDescription"
+                label="Describe the property in less than 2000 words"
+              ></v-textarea>
+            </span>
             <v-btn text @click="e1 = 2">Back</v-btn>
             <v-btn color="primary" :disabled="!valid" @click="validate3(4)"
               >Submit</v-btn
@@ -182,13 +213,21 @@ export default {
       sound: true,
       widgets: false,
       customerTypeKnown: false,
+      birthdatemenu: false,
       nameRules: [v => !!v || "This field is required"],
+      myaddress: {},
+      vm: {
+        searchPlace: "",
+        location: {
+          formatted_address: ""
+        }
+      },
       lead: {
         readyForProcessing: "",
         timestamp: "",
         customer: {
           idnumber: "",
-          firstname: "",
+          forename: "",
 
           surname: "",
           contactnumber: "",
@@ -202,8 +241,8 @@ export default {
           suburb: "",
           area: "",
           province: "",
-          streetNumber: "",
-          streetName: ""
+          streetnumber: "",
+          streetname: ""
         },
         property: {
           isHomeOwner: "",
@@ -272,14 +311,63 @@ export default {
         this.e1 = n + 1;
       }
     },
+    formatAddress(ggl_address) {
+      var address_components = ggl_address.address_components;
+      var ShouldBeComponent = {
+        streetnumber: ["street_number"],
+        //postal_code: ["postal_code"],
+        streetname: ["street_address", "route"],
+        province: [
+          "administrative_area_level_1",
+          "administrative_area_level_2",
+          "administrative_area_level_3",
+          "administrative_area_level_4",
+          "administrative_area_level_5"
+        ],
+        suburb: [
+          "sublocality",
+          "sublocality_level_1",
+          "sublocality_level_2",
+          "sublocality_level_3",
+          "sublocality_level_4"
+        ],
+        area: ["locality"]
+        //country: ["country"]
+      };
+
+      var address = {
+        latitude: 0,
+        longitude: 0,
+        suburb: "",
+        area: "",
+        province: "",
+        streetnumber: "",
+        streetname: ""
+      };
+      address_components.forEach(component => {
+        for (var shouldBe in ShouldBeComponent) {
+          if (ShouldBeComponent[shouldBe].indexOf(component.types[0]) !== -1) {
+            if (shouldBe === "country") {
+              address[shouldBe] = component.short_name;
+            } else {
+              address[shouldBe] = component.long_name;
+            }
+          }
+        }
+      });
+      address.latitude = ggl_address.geometry.location.lat();
+      address.longitude = ggl_address.geometry.location.lng();
+      this.lead.address = address;
+    },
     submitToStore() {
+      this.formatAddress(this.vm.location);
       //var userId = this.$store.currentUser.uid;
       fb.leadsCollection
         .add({
           createdOn: new Date(),
           userId: this.currentUser.uid,
           userName: this.userProfile.name + " " + this.userProfile.surname,
-          userEmail: this.userProfile.userEmail,
+          userEmail: this.userProfile.email,
           lead: this.lead
         })
         .then(ref => {
