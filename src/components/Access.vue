@@ -253,16 +253,66 @@ export default {
         }
       },
       idtypeOptions: [
-        { value: 1, text: "SA Citizen" },
-        { value: 2, text: "Foreign National" }
+        {
+          value: "I",
+          text: "SA ID"
+        },
+        {
+          value: "P",
+          text: "Passport"
+        }
       ],
       roofTypeOptions: [
-        { value: 1, text: "Roof One" },
-        { value: 2, text: "Roof Two" }
+        {
+          value: "ASBESTOS",
+          text: "Asbestos"
+        },
+        {
+          value: "CONCRETE",
+          text: "Concrete"
+        },
+        {
+          value: "IRON/ZINC",
+          text: "Corrugated Iron / Zinc"
+        },
+        {
+          value: "SHINGLES",
+          text: "Shingles"
+        },
+        {
+          value: "SLATE",
+          text: "Slate"
+        },
+        {
+          value: "THATCH_TRE",
+          text: "Thatch treated"
+        },
+        {
+          value: "TILES",
+          text: "Tiles"
+        },
+        {
+          value: "WOOD",
+          text: "Wood"
+        }
       ],
       wallTypeOptions: [
-        { value: 1, text: "Wall One" },
-        { value: 2, text: "Wall Two" }
+        {
+          value: "ASBESTOS",
+          text: "Asbestos"
+        },
+        {
+          value: "BRICK_CONC",
+          text: "Brick / Concrete"
+        },
+        {
+          value: "PREFAB",
+          text: "Prefab"
+        },
+        {
+          value: "WOOD",
+          text: "Wood"
+        }
       ],
       e1: 1,
       steps: 2,
